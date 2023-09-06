@@ -38,7 +38,7 @@ function getPageData(layoutData: any): SitecorePageData | null {
 
   return {
     name: layoutData.sitecore.route.name,
-    site: layoutData.sitecore.site.name,
+    site: layoutData.sitecore.context.site.name,
     itemId: layoutData.sitecore.route.itemId,
     templateName: layoutData.sitecore.route.templateName,
     templateId: layoutData.sitecore.route.templateId,
