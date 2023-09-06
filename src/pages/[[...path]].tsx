@@ -80,7 +80,7 @@ const SitecorePage = ({
   const isComponentRendering =
     layoutData.sitecore.context.renderingType === RenderingType.Component;
 
-  const pageData = getPageData(layoutData);
+  getPageData(layoutData);
   encodeLayoutData(layoutData, encodeEditInfo);
 
   return (
