@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@sitecore-jss/sitecore-jss-nextjs": "~21.1.6",
+    "@vercel/stega": "^0.1.0",
     "bootstrap": "^5.1.3",
     "font-awesome": "^4.7.0",
     "graphql": "~15.8.0",

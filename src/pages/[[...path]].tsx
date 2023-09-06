@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
-import { GetStaticPaths, GetStaticProps } from 'next'
-import NotFound from 'src/NotFound'
-import Layout from 'src/Layout'
+import { useEffect } from "react";
+import { GetStaticPaths, GetStaticProps } from "next";
+import NotFound from "src/NotFound";
+import Layout from "src/Layout";
 import {
   RenderingType,
   SitecoreContext,
@@ -9,15 +9,57 @@ import {
   handleEditorFastRefresh,
   EditingComponentPlaceholder,
   StaticPath,
-} from '@sitecore-jss/sitecore-jss-nextjs'
-import { SitecorePageProps } from 'lib/page-props'
-import { sitecorePagePropsFactory } from 'lib/page-props-factory'
+  LayoutServiceData,
+} from "@sitecore-jss/sitecore-jss-nextjs";
+import { SitecorePageProps } from "lib/page-props";
+import { sitecorePagePropsFactory } from "lib/page-props-factory";
 // different componentFactory method will be used based on whether page is being edited
 import {
   componentFactory,
   editingComponentFactory,
-} from 'temp/componentFactory'
-import { sitemapFetcher } from 'lib/sitemap-fetcher'
+} from "temp/componentFactory";
+import { sitemapFetcher } from "lib/sitemap-fetcher";
+import { vercelStegaCombine } from "@vercel/stega";
+
+function getPageData(layoutData: LayoutServiceData) {
+  if (!layoutData || !layoutData.sitecore || !layoutData.sitecore.route)
+    return {};
+
+  return {
+    name: layoutData.sitecore.route.name,
+    itemId: layoutData.sitecore.route.itemId,
+    templateName: layoutData.sitecore.route.templateName,
+    templateId: layoutData.sitecore.route.templateId,
+    layoutId: layoutData.sitecore.route.layoutId,
+    itemLanguage: layoutData.sitecore.route.itemLanguage,
+  };
+}
+
+function encodeLayoutData(obj: any, encode: (value: string) => void) {
+  // Base case: if the object is null or undefined, return it as is
+  if (!obj) return obj;
+
+  // Check if the current object has a "value" property and if its value is a string
+  if (obj.hasOwnProperty("value") && typeof obj.value === "string") {
+    obj.value = encode(obj.value);
+  }
+
+  // Iterate over the properties of the object
+  for (let key in obj) {
+    if (typeof obj[key] === "object") {
+      // If the property is an object or array
+      encodeLayoutData(obj[key], encode); // Recursively call the function
+    }
+  }
+}
+
+function encodeEditInfo(value: string) {
+  return vercelStegaCombine(value, {
+    origin: "pages.sitecorecloud.io",
+    href: `https://pages.sitecorecloud.io/composer/pages/editor?tenantName=vercel-partnerdemo01-production&organization=org_0Rd0qFSPesWP6WLA&sc_itemid=d004c40c-e4d4-4ad7-a0d7-f0f97780aee3&sc_lang=en&sc_site=basic-01&sc_version=1`,
+    data: {},
+  });
+}
 
 const SitecorePage = ({
   notFound,
@@ -26,17 +68,20 @@ const SitecorePage = ({
 }: SitecorePageProps): JSX.Element => {
   useEffect(() => {
     // Since Sitecore editors do not support Fast Refresh, need to refresh editor chromes after Fast Refresh finished
-    handleEditorFastRefresh()
-  }, [])
+    handleEditorFastRefresh();
+  }, []);
 
   if (notFound || !layoutData.sitecore.route) {
     // Shouldn't hit this (as long as 'notFound' is being returned below), but just to be safe
-    return <NotFound />
+    return <NotFound />;
   }
 
-  const isEditing = layoutData.sitecore.context.pageEditing
+  const isEditing = layoutData.sitecore.context.pageEditing;
   const isComponentRendering =
-    layoutData.sitecore.context.renderingType === RenderingType.Component
+    layoutData.sitecore.context.renderingType === RenderingType.Component;
+
+  const pageData = getPageData(layoutData);
+  encodeLayoutData(layoutData, encodeEditInfo);
 
   return (
     <ComponentPropsContext value={componentProps}>
@@ -57,8 +102,8 @@ const SitecorePage = ({
         )}
       </SitecoreContext>
     </ComponentPropsContext>
-  )
-}
+  );
+};
 
 // This function gets called at build and export time to determine
 // pages for SSG ("paths", as tokenized array).
@@ -71,35 +116,35 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
   // ahead of time (non-development mode in this example).
   // See https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration
 
-  let paths: StaticPath[] = []
-  let fallback: boolean | 'blocking' = 'blocking'
+  let paths: StaticPath[] = [];
+  let fallback: boolean | "blocking" = "blocking";
 
   if (
-    process.env.NODE_ENV !== 'development' &&
+    process.env.NODE_ENV !== "development" &&
     !process.env.DISABLE_SSG_FETCH
   ) {
     try {
       // Note: Next.js runs export in production mode
-      paths = await sitemapFetcher.fetch(context)
+      paths = await sitemapFetcher.fetch(context);
     } catch (error) {
-      console.log('Error occurred while fetching static paths')
-      console.log(error)
+      console.log("Error occurred while fetching static paths");
+      console.log(error);
     }
 
-    fallback = process.env.EXPORT_MODE ? false : fallback
+    fallback = process.env.EXPORT_MODE ? false : fallback;
   }
 
   return {
     paths,
     fallback,
-  }
-}
+  };
+};
 
 // This function gets called at build time on server-side.
 // It may be called again, on a serverless function, if
 // revalidation (or fallback) is enabled and a new request comes in.
 export const getStaticProps: GetStaticProps = async (context) => {
-  const props = await sitecorePagePropsFactory.create(context)
+  const props = await sitecorePagePropsFactory.create(context);
 
   return {
     props,
@@ -108,7 +153,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     // - At most once every 5 seconds
     revalidate: 5, // In seconds
     notFound: props.notFound, // Returns custom 404 page with a status code of 404 when true
-  }
-}
+  };
+};
 
-export default SitecorePage
+export default SitecorePage;
