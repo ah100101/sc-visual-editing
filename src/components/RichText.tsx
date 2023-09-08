@@ -1,25 +1,38 @@
-import React from 'react'
+import React from "react";
 import {
   Field,
   RichText as JssRichText,
-} from '@sitecore-jss/sitecore-jss-nextjs'
+  useSitecoreContext,
+} from "@sitecore-jss/sitecore-jss-nextjs";
+import {
+  encodeVisualEditingInfo,
+  visualEditingEnabled,
+} from "lib/visual-editing";
 
 interface Fields {
-  Text: Field<string>
+  Text: Field<string>;
 }
 
 export type RichTextProps = {
-  params: { [key: string]: string }
-  fields: Fields
-}
+  params: { [key: string]: string };
+  fields: Fields;
+};
 
 export const Default = (props: RichTextProps): JSX.Element => {
+  if (visualEditingEnabled()) {
+    const { sitecoreContext } = useSitecoreContext();
+    props.fields.Text.value = encodeVisualEditingInfo(
+      props.fields.Text.value,
+      sitecoreContext
+    );
+  }
+
   const text = props.fields ? (
     <JssRichText field={props.fields.Text} />
   ) : (
     <span className="is-empty-hint">Rich text</span>
-  )
-  const id = props.params.RenderingIdentifier
+  );
+  const id = props.params.RenderingIdentifier;
 
   return (
     <div
@@ -28,5 +41,5 @@ export const Default = (props: RichTextProps): JSX.Element => {
     >
       <div className="component-content">{text}</div>
     </div>
-  )
-}
+  );
+};
