@@ -100,10 +100,10 @@ const SitecorePage = ({
   const isComponentRendering =
     layoutData.sitecore.context.renderingType === RenderingType.Component;
 
-  const pageData = getPageData(layoutData);
-  if (pageData) {
-    encodeLayoutData(layoutData, pageData);
-  }
+  // const pageData = getPageData(layoutData);
+  // if (pageData) {
+  //   encodeLayoutData(layoutData, pageData);
+  // }
 
   return (
     <ComponentPropsContext value={componentProps}>
