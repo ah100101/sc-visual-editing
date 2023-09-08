@@ -16,7 +16,7 @@ function stegaCombine(
 ): string {
   return vercelStegaCombine(str, {
     origin: params.origin,
-    href: `https://${params.origin}/composer/pages/editor?tenantName=${params.tenant}&organization=${params.organization}&sc_itemid=${params.itemId}&sc_lang=${params.language}&sc_site=${params.site}&sc_version=1`,
+    href: `https://${params.origin}/composer/pages/editor?sc_itemid=${params.itemId}&sc_lang=${params.language}&sc_site=${params.site}&sc_version=1`,
     data: {},
   });
 }
