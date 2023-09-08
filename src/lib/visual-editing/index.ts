@@ -73,6 +73,11 @@ export function visualEditingEnabled(): boolean {
       );
       return false;
     }
+    if (!process.env.VISUAL_EDITING_ORGANIZATION) {
+      console.warn(
+        "The VISUAL_EDITING_ORGANIZATION environment variable must be set to enable visual editing"
+      );
+    }
     return true;
   }
   return false;
