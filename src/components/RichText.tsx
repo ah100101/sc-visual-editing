@@ -2,12 +2,8 @@ import React from "react";
 import {
   Field,
   RichText as JssRichText,
-  useSitecoreContext,
 } from "@sitecore-jss/sitecore-jss-nextjs";
-import {
-  encodeVisualEditingInfo,
-  visualEditingEnabled,
-} from "lib/visual-editing";
+import { linkVercelPreviewToSitecore } from "lib/visual-editing";
 
 interface Fields {
   Text: Field<string>;
@@ -19,13 +15,9 @@ export type RichTextProps = {
 };
 
 export const Default = (props: RichTextProps): JSX.Element => {
-  if (visualEditingEnabled()) {
-    const { sitecoreContext } = useSitecoreContext();
-    props.fields.Text.value = encodeVisualEditingInfo(
-      props.fields.Text.value,
-      sitecoreContext
-    );
-  }
+  props.fields.Text.value = linkVercelPreviewToSitecore(
+    props.fields.Text.value
+  );
 
   const text = props.fields ? (
     <JssRichText field={props.fields.Text} />

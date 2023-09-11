@@ -1,4 +1,7 @@
-import { SitecoreContextValue } from "@sitecore-jss/sitecore-jss-nextjs";
+import {
+  SitecoreContextValue,
+  useSitecoreContext,
+} from "@sitecore-jss/sitecore-jss-nextjs";
 import { vercelStegaCombine } from "@vercel/stega";
 
 export type SitecoreVisualEditingParams = {
@@ -19,6 +22,14 @@ function stegaCombine(
     href: `https://${params.origin}/composer/pages/editor?sc_itemid=${params.itemId}&sc_lang=${params.language}&sc_site=${params.site}&sc_version=1`,
     data: {},
   });
+}
+
+export function linkVercelPreviewToSitecore(text: string): string {
+  if (visualEditingEnabled()) {
+    const { sitecoreContext } = useSitecoreContext();
+    return encodeVisualEditingInfo(text, sitecoreContext);
+  }
+  return text;
 }
 
 export function encodeVisualEditingInfo(
