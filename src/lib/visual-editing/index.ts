@@ -59,6 +59,10 @@ export function encodeVisualEditingInfo(
 }
 
 export function visualEditingEnabled(): boolean {
+  if (process.env.VERCEL_ENV === "production") {
+    return false;
+  }
+
   if (process.env.VISUAL_EDITING_ENABLED && process.env.VISUAL_EDITING_ORIGIN) {
     return true;
   }
