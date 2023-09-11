@@ -59,26 +59,15 @@ export function encodeVisualEditingInfo(
 }
 
 export function visualEditingEnabled(): boolean {
-  // todo, check env vars for Vercel
-  if (process.env.VISUAL_EDITING_ENABLED === "true") {
-    if (!process.env.VISUAL_EDITING_ORIGIN) {
-      console.warn(
-        "The VISUAL_EDITING_ORIGIN environment variable must be set to enable visual editing"
-      );
-      return false;
-    }
-    if (!process.env.VISUAL_EDITING_TENANT) {
-      console.warn(
-        "The VISUAL_EDITING_TENANT environment variable must be set to enable visual editing"
-      );
-      return false;
-    }
-    if (!process.env.VISUAL_EDITING_ORGANIZATION) {
-      console.warn(
-        "The VISUAL_EDITING_ORGANIZATION environment variable must be set to enable visual editing"
-      );
-    }
+  if (process.env.VISUAL_EDITING_ENABLED && process.env.VISUAL_EDITING_ORIGIN) {
     return true;
   }
+
+  if (!process.env.VISUAL_EDITING_ORIGIN) {
+    console.warn(
+      "The VISUAL_EDITING_ORIGIN environment variable must be set to enable visual editing"
+    );
+  }
+
   return false;
 }
