@@ -4,14 +4,22 @@ import {
 } from "@sitecore-jss/sitecore-jss-nextjs";
 import { vercelStegaCombine } from "@vercel/stega";
 
-export type SitecoreVisualEditingParams = {
+type SitecoreVisualEditingParams = {
   origin: string;
-  tenant: string | undefined;
-  organization: string | undefined;
+  tenant?: string;
+  organization?: string;
   language: string;
   itemId: string;
   site: string;
 };
+
+export function useVercelPreviewLink(text: string): string {
+  const { sitecoreContext } = useSitecoreContext();
+  if (visualEditingIsEnabled()) {
+    return encodeVisualEditingInfo(text, sitecoreContext);
+  }
+  return text;
+}
 
 function stegaCombine(
   str: string,
@@ -20,45 +28,20 @@ function stegaCombine(
   return vercelStegaCombine(str, {
     origin: params.origin,
     href: `https://${params.origin}/composer/pages/editor?sc_itemid=${params.itemId}&sc_lang=${params.language}&sc_site=${params.site}&sc_version=1`,
-    data: {},
   });
 }
 
-export function linkVercelPreviewToSitecore(text: string): string {
-  if (visualEditingEnabled()) {
-    const { sitecoreContext } = useSitecoreContext();
-    return encodeVisualEditingInfo(text, sitecoreContext);
-  }
-  return text;
-}
-
-export function encodeVisualEditingInfo(
+function encodeVisualEditingInfo(
   str: string,
   context: SitecoreContextValue
 ): string {
-  if (!context?.itemId) {
-    console.warn(
-      "Unable to encode visual editing info, context.itemId is undefined"
-    );
-    return str;
-  }
-  if (!context?.site?.name) {
-    console.warn(
-      "Unable to encode visual editing info, context.itemId is undefined"
-    );
-    return str;
-  }
-
-  if (!context?.language) {
-    console.warn(
-      "Unable to encode visual editing info, context.language is undefined"
-    );
+  if (!context?.itemId || !context?.site?.name || !context?.language) {
+    warnAboutMissingContext(context);
     return str;
   }
 
   const params: SitecoreVisualEditingParams = {
-    // todo: what happens if there is no tenant or organization?
-    origin: process.env.VISUAL_EDITING_ORIGIN || "pages.sitecorecloud.io",
+    origin: process.env.VISUAL_EDITING_ORIGIN ?? "pages.sitecorecloud.io",
     tenant: process.env.VISUAL_EDITING_TENANT,
     organization: process.env.VISUAL_EDITING_ORGANIZATION,
     itemId: context.itemId,
@@ -69,7 +52,7 @@ export function encodeVisualEditingInfo(
   return stegaCombine(str, params);
 }
 
-export function visualEditingEnabled(): boolean {
+function visualEditingIsEnabled(): boolean {
   if (process.env.VERCEL_ENV === "production") {
     return false;
   }
@@ -85,4 +68,22 @@ export function visualEditingEnabled(): boolean {
   }
 
   return false;
+}
+
+function warnAboutMissingContext(context?: SitecoreContextValue): void {
+  if (!context?.itemId) {
+    console.warn(
+      "Unable to encode visual editing info, context.itemId is undefined"
+    );
+  }
+  if (!context?.site?.name) {
+    console.warn(
+      "Unable to encode visual editing info, context.site.name is undefined"
+    );
+  }
+  if (!context?.language) {
+    console.warn(
+      "Unable to encode visual editing info, context.language is undefined"
+    );
+  }
 }

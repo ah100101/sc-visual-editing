@@ -3,7 +3,7 @@ import {
   Field,
   RichText as JssRichText,
 } from "@sitecore-jss/sitecore-jss-nextjs";
-import { linkVercelPreviewToSitecore } from "lib/visual-editing";
+import { useVercelPreviewLink } from "lib/visual-editing";
 
 interface Fields {
   Text: Field<string>;
@@ -15,9 +15,7 @@ export type RichTextProps = {
 };
 
 export const Default = (props: RichTextProps): JSX.Element => {
-  props.fields.Text.value = linkVercelPreviewToSitecore(
-    props.fields.Text.value
-  );
+  props.fields.Text.value = useVercelPreviewLink(props.fields.Text.value);
 
   const text = props.fields ? (
     <JssRichText field={props.fields.Text} />
