@@ -9,7 +9,6 @@ import {
   handleEditorFastRefresh,
   EditingComponentPlaceholder,
   StaticPath,
-  LayoutServiceData,
 } from "@sitecore-jss/sitecore-jss-nextjs";
 import { SitecorePageProps } from "lib/page-props";
 import { sitecorePagePropsFactory } from "lib/page-props-factory";
@@ -19,47 +18,68 @@ import {
   editingComponentFactory,
 } from "temp/componentFactory";
 import { sitemapFetcher } from "lib/sitemap-fetcher";
-import { vercelStegaCombine } from "@vercel/stega";
+// import { vercelStegaCombine } from "@vercel/stega";
 
-function getPageData(layoutData: LayoutServiceData) {
-  if (!layoutData || !layoutData.sitecore || !layoutData.sitecore.route)
-    return {};
+// type SitecorePageData = {
+//   name: string;
+//   site: string | undefined;
+//   itemId: string | undefined;
+//   templateName: string | undefined;
+//   templateId: string | undefined;
+//   layoutId: string | undefined;
+//   itemLanguage: string | undefined;
+//   tenant: string;
+//   organization: string;
+// };
 
-  return {
-    name: layoutData.sitecore.route.name,
-    itemId: layoutData.sitecore.route.itemId,
-    templateName: layoutData.sitecore.route.templateName,
-    templateId: layoutData.sitecore.route.templateId,
-    layoutId: layoutData.sitecore.route.layoutId,
-    itemLanguage: layoutData.sitecore.route.itemLanguage,
-  };
-}
+// function getPageData(layoutData: any): SitecorePageData | null {
+//   if (!layoutData || !layoutData.sitecore || !layoutData.sitecore.route)
+//     return null;
 
-function encodeLayoutData(obj: any, encode: (value: string) => void) {
-  // Base case: if the object is null or undefined, return it as is
-  if (!obj) return obj;
+//   return {
+//     name: layoutData.sitecore.route.name,
+//     site: layoutData.sitecore.context.site.name,
+//     itemId: layoutData.sitecore.route.itemId,
+//     templateName: layoutData.sitecore.route.templateName,
+//     templateId: layoutData.sitecore.route.templateId,
+//     layoutId: layoutData.sitecore.route.layoutId,
+//     itemLanguage: layoutData.sitecore.route.itemLanguage,
+//     // TODO: will need to be set via env vars
+//     tenant: "vercel-partnerdemo01-production",
+//     // TODO: will need to be set via env vars
+//     organization: "org_0Rd0qFSPesWP6WLA",
+//   };
+// }
 
-  // Check if the current object has a "value" property and if its value is a string
-  if (obj.hasOwnProperty("value") && typeof obj.value === "string") {
-    obj.value = encode(obj.value);
-  }
+// function encodeLayoutData(layoutData: any, pageData: SitecorePageData): void {
+//   // Base case: if the object is null or undefined, return it as is
+//   if (!layoutData) return layoutData;
 
-  // Iterate over the properties of the object
-  for (let key in obj) {
-    if (typeof obj[key] === "object") {
-      // If the property is an object or array
-      encodeLayoutData(obj[key], encode); // Recursively call the function
-    }
-  }
-}
+//   // Check if the current object has a "value" property and if its value is a string
+//   if (
+//     layoutData.hasOwnProperty("value") &&
+//     typeof layoutData.value === "string"
+//   ) {
+//     if (!pageData.itemId) return;
+//     layoutData.value = encodeEditInfo(layoutData.value, pageData);
+//   }
 
-function encodeEditInfo(value: string) {
-  return vercelStegaCombine(value, {
-    origin: "pages.sitecorecloud.io",
-    href: `https://pages.sitecorecloud.io/composer/pages/editor?tenantName=vercel-partnerdemo01-production&organization=org_0Rd0qFSPesWP6WLA&sc_itemid=d004c40c-e4d4-4ad7-a0d7-f0f97780aee3&sc_lang=en&sc_site=basic-01&sc_version=1`,
-    data: {},
-  });
-}
+//   // Iterate over the properties of the object
+//   for (let key in layoutData) {
+//     if (typeof layoutData[key] === "object") {
+//       // If the property is an object or array
+//       encodeLayoutData(layoutData[key], pageData);
+//     }
+//   }
+// }
+
+// function encodeEditInfo(value: string, pageData: SitecorePageData) {
+//   return vercelStegaCombine(value, {
+//     origin: "pages.sitecorecloud.io",
+//     href: `https://pages.sitecorecloud.io/composer/pages/editor?tenantName=${pageData.tenant}&organization=${pageData.organization}&sc_itemid=${pageData.itemId}&sc_lang=${pageData.itemLanguage}&sc_site=${pageData.site}&sc_version=1`,
+//     data: {},
+//   });
+// }
 
 const SitecorePage = ({
   notFound,
@@ -80,8 +100,10 @@ const SitecorePage = ({
   const isComponentRendering =
     layoutData.sitecore.context.renderingType === RenderingType.Component;
 
-  getPageData(layoutData);
-  encodeLayoutData(layoutData, encodeEditInfo);
+  // const pageData = getPageData(layoutData);
+  // if (pageData) {
+  //   encodeLayoutData(layoutData, pageData);
+  // }
 
   return (
     <ComponentPropsContext value={componentProps}>
